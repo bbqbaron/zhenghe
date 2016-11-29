@@ -10,40 +10,49 @@ import RxCocoa
 import RxDataSources
 import RxSwift
 import UIKit
+import CoreLocation
 
 // TODO maybe a map interface? it kind of depends on whether this is meant to just search
 // for anything anywhere, or nearby places of interest
-class ViewController: UIViewController {
+class ViewController: UITableViewController {
 
 	@IBOutlet weak var textField: UITextField!
-	@IBOutlet weak var tableView: UITableView!
 	@IBOutlet weak var searching: UIActivityIndicatorView!
 
-	// TODO this should be dependency-injected to better enable testing
-	let api = API()
+	// TODO this should be dependency-injected to better enable testing. Use protocols for abstraction :-)
+    let api: API = LiveAPI()
+    // Assuming you were using AliSoftware/Dip you could have
+    // singleton container 'dip' configured at startup
+    // and do something like
+    // let api: API = try! dip.resolve()
+    // Use of ! is not ideal though, you could make it optional
+    // let api = (try? dip.resolve() as API)
+    // and then code controller to display suitable message if api == nil
+    
+    
 	let disposeBag = DisposeBag()
 
 	func makePlaceCell(source: TableViewSectionedDataSource<SectionModel<String, Result>>, table: UITableView, indexPath: IndexPath, result: Result) -> UITableViewCell! {
 		// force-casting makes me twitch, but research suggests that this is just what
 		// you do without writing an extension of UITableView. do you know a better way?
 
-		let cell = table.dequeueReusableCell(withIdentifier: "PlaceCell", for: indexPath) as! PlaceCell // swiftlint:disable:this force_cast
+		let cell = table.dequeueReusableCell(withIdentifier: PlaceCell.identifier, for: indexPath) as! PlaceCell // swiftlint:disable:this force_cast
 
-		cell.name.text = [result.name, result.adminName1, result.countryName]
-			.filter { x in x != "" }
-			.joined(separator: ", ")
 
-		cell.distance.text = nil
-
-		// WTB really good optional mapping syntax; I'm a Haskeller in private life : /
-		cell.distance.text = Location.distanceFrom(lat: result.lat, lng: result.lng)
-
+        // Use some object to separate result model from cell. Ideally though you'd want to move this association
+        // out of the VC - have a VM that returns array of cell view models rather than model (Result) instances.
+        
+        cell.bind(result: CellViewModel(result: result))
+        
 		return cell
 	}
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+        self.navigationItem.titleView = textField
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: searching)
+        
 		let textEvents = textField.rx.text.asObservable()
 			.filter { x in x != nil && x != "" }
 			.map { x in x! }
@@ -64,30 +73,36 @@ class ViewController: UIViewController {
 		let searchResults = api.search(
 				searches: textEvents
 			).map { results in
+                // This whould ideally be moved out to separate
+                // 'presenter' layer that has observer of search string
+                // and provides observable of SectionModel thus
+                // separating api from UI
+                
 				// there's only one section
 				[
 					SectionModel(
 						model: "",
+						// Closure here should probably moved into separate function
 						items: results.sorted { first, second in
 							// ick, sorry; there's really no reason the distance should be nullable from
 							// call to call.
-							(Location.metersFrom(lat: first.lat, lng: first.lng) ?? 0)
-							< (Location.metersFrom(lat: second.lat, lng: second.lng) ?? 0)
-						}
+                            
+                            (CLLocation(latitude: CLLocationDegrees(first.lat), longitude: CLLocationDegrees(first.lng)).distanceFromCurrentLocation ?? 0) <
+                            (CLLocation(latitude: CLLocationDegrees(second.lat), longitude: CLLocationDegrees(second.lng)).distanceFromCurrentLocation ?? 0)
+                        }
 					)
 				]
 			// ensure main-thread dispatch of UI updates!
-			}.observeOn(MainScheduler.instance)
+			}.asDriver(onErrorJustReturn: [])
 
 		searchResults
 			.map { _ in false }
-			.bindTo(searching.rx.isAnimating)
+			.drive(searching.rx.isAnimating)
 			.addDisposableTo(disposeBag)
 
 		searchResults
-			.bindTo(tableView.rx.items(dataSource: dataSource))
+			.drive(tableView.rx.items(dataSource: dataSource))
 			.addDisposableTo(disposeBag)
 	}
 
 }
-

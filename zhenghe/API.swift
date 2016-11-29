@@ -9,9 +9,18 @@
 import Foundation
 import RxSwift
 
-class API {
+protocol API {
+
+    func search(searches: Observable<String>) -> Observable<[Result]>
+}
+
+class LiveAPI: API {
 
 	let language = Locale.current.languageCode ?? "en"
+    // Scheduler to run response processing on background thread, we shouldn't do this
+    // on the main thread as large payload will cause UI glitching
+    let scheduler = ConcurrentDispatchQueueScheduler(qos:
+        DispatchQoS(qosClass: .default, relativePriority: 0))
 
 	internal func doSearch(search: String) -> Observable<[Result]> {
 		guard let request = constructRequest(search) else {
@@ -20,7 +29,7 @@ class API {
 
 		return URLSession.shared.rx.json(request: request)
 			.map { (json: Any) -> [Result] in
-				Result.fromJSON(json: json)
+				JsonResult.fromJSON(json: json)
 			}
 	}
 
@@ -59,7 +68,11 @@ class API {
 	internal func search(searches: Observable<String>) -> Observable<[Result]> {
 		// dispatch new searches a minimum of half a second apart
 		return searches
-			.sample(Observable<Int>.timer(0, period: 0.5, scheduler: MainScheduler.instance))
+            // Rate limit output, using our scheduler switches
+            // sequence to background thread
+            .throttle(0.3, scheduler: scheduler)
+            // Don't pass through two strings the same
+            .distinctUntilChanged()
 			// .flatMapLatest will discard any event emitted by searches that have been superseded. this lovely function even cancels observables that have not emitted by the time they are superseded.
 			.flatMapLatest(doSearch)
 			.catchError { error in
