@@ -7,51 +7,67 @@
 //
 
 import CoreLocation
+import MapKit
 
-class Location {
+// Abstraction of a location service (this is simplistic for now
+// but just to demo principle)
+protocol LocationManager {
 
-	struct Unit {
-		let fromMeters: Double
-		let label: String
-	}
+    var location: CLLocation? { get }
 
-	static let manager = CLLocationManager()
-	static let units: Unit = Locale.current.usesMetricSystem ?
-		Unit(fromMeters: 0.001, label: "km") :
-		Unit(fromMeters: 0.000621371, label: "mi")
+}
 
-	// XXX the simulator needs to be told to simulate a location in order to return anything, so for simplicity I've provided a fallback.
-	// Naturally, a real user may not have provided location permissions,
-	// but I wanted to let a local tester see it without mucking around too much.
-	// Hence, the optional return type.
-	static func getCurrent() -> CLLocation? {
-		return manager.location ??
-			CLLocation(
-				latitude: CLLocationDegrees(43), longitude: CLLocationDegrees(-71)
-			)
-	}
+// CLLocationManager conforms to our abstraction of location service
+extension CLLocationManager: LocationManager {}
 
-	static func distanceString(_ meters: Double) -> String {
-		let inUnits = round(100 * meters * units.fromMeters) / 100
+// Mock implementation for testing etc
+struct MockLocationManager: LocationManager {
+    
+    let location: CLLocation? = CLLocation(
+        latitude: CLLocationDegrees(43), longitude: CLLocationDegrees(-71)
+    )
 
-		return "\(inUnits) \(units.label)"
-	}
+}
 
-	static func distanceFrom(lat: Float, lng: Float) -> String {
-		guard let distance: Double = metersFrom(lat: lat, lng: lng) else {
-			return ""
-		}
+// Extend CLLocationDistance to provide formatted
+// string of value
+extension CLLocationDistance {
 
-		return distanceString(distance)
-	}
+    // Configure a distance formatter, use static 
+    // shared instance
+    static let distanceFormatter: MKDistanceFormatter = {
+        let formatter = MKDistanceFormatter()
+        formatter.unitStyle = .abbreviated
+        return formatter
+    }()
 
-	static func metersFrom(lat: Float, lng: Float) -> Double? {
-		guard let current = getCurrent() else {
+    // Use formatter to get string
+    var asDistanceString: String {
+        return CLLocationDistance.distanceFormatter.string(fromDistance: self)
+    }
+}
+
+// Extend CLLocation to provide distance from users
+// current location
+extension CLLocation {
+
+    var distanceFromCurrentLocation: CLLocationDistance? {
+        guard let current = Location.getCurrent() else {
 			return nil
 		}
 
-		let other = CLLocation(latitude: CLLocationDegrees(lat), longitude: CLLocationDegrees(lng))
+		return current.distance(from: self)
+    }
+}
 
-		return current.distance(from: other)
-	}
+class Location {
+
+    // Abstract location manager so we can use DI to configure alternative location
+    // providers - for now just use mock implementation from above
+    static let manager: LocationManager = MockLocationManager()
+
+	static func getCurrent() -> CLLocation? {
+		return manager.location
+    }
+
 }

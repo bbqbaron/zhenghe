@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C3690C71DE98D7B00956B73 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7791DE6109F00FFED43 /* JSON.swift */; };
+		2C3690C81DE98D7C00956B73 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7791DE6109F00FFED43 /* JSON.swift */; };
 		C29C880D1DE68075001DC095 /* RxDataSources.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C29C88091DE68075001DC095 /* RxDataSources.framework */; };
 		C29C880E1DE68075001DC095 /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C29C880A1DE68075001DC095 /* RxCocoa.framework */; };
 		C29C880F1DE68075001DC095 /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C29C880B1DE68075001DC095 /* RxSwift.framework */; };
@@ -20,8 +22,6 @@
 		C2C3C7551DE5F90D00FFED43 /* ZhengheUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7541DE5F90D00FFED43 /* ZhengheUITests.swift */; };
 		C2C3C7771DE60F1700FFED43 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7761DE60F1700FFED43 /* Result.swift */; };
 		C2C3C7781DE60F1700FFED43 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7761DE60F1700FFED43 /* Result.swift */; };
-		C2C3C77A1DE6109F00FFED43 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7791DE6109F00FFED43 /* JSON.swift */; };
-		C2C3C77B1DE6109F00FFED43 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7791DE6109F00FFED43 /* JSON.swift */; };
 		C2C3C77E1DE61C6400FFED43 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C77D1DE61C6400FFED43 /* API.swift */; };
 		C2C3C77F1DE61DE400FFED43 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C77D1DE61C6400FFED43 /* API.swift */; };
 		C2C3C7831DE6360700FFED43 /* PlaceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C3C7821DE6360700FFED43 /* PlaceCell.swift */; };
@@ -260,7 +260,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Eric Loren";
 				TargetAttributes = {
 					C2C3C7301DE5F90D00FFED43 = {
@@ -367,8 +367,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2C3C77A1DE6109F00FFED43 /* JSON.swift in Sources */,
 				C2C3C7771DE60F1700FFED43 /* Result.swift in Sources */,
+				2C3690C71DE98D7B00956B73 /* JSON.swift in Sources */,
 				C2C3C7371DE5F90D00FFED43 /* ViewController.swift in Sources */,
 				C2C3C7351DE5F90D00FFED43 /* AppDelegate.swift in Sources */,
 				C2C3C77E1DE61C6400FFED43 /* API.swift in Sources */,
@@ -384,9 +384,9 @@
 				C2C3C7781DE60F1700FFED43 /* Result.swift in Sources */,
 				C2C3C74A1DE5F90D00FFED43 /* APITest.swift in Sources */,
 				C2C3C77F1DE61DE400FFED43 /* API.swift in Sources */,
+				2C3690C81DE98D7C00956B73 /* JSON.swift in Sources */,
 				C2C3C78B1DE63D4B00FFED43 /* LocationTest.swift in Sources */,
 				C2C3C78C1DE63D5800FFED43 /* Location.swift in Sources */,
-				C2C3C77B1DE6109F00FFED43 /* JSON.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -451,6 +451,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -501,6 +502,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
